@@ -1,33 +1,72 @@
-import { StyleSheet, Text, View, StatusBar, SafeAreaView } from "react-native";
-import data from './data.js';
+import { useState } from "react";
+import {View, SafeAreaView, FlatList,} from "react-native";
+
+import { InputTask, TaskItem } from "./components";
+import { styles } from "./styles";
+import ModalList from "./components/modal";
 
 export default function App() {
+  const [task, setTask] = useState("");
+  const [tasks, setTasks] = useState([]);
+  
+  const [borderColor, setBorderColor] = useState("#C5C9E7");
+
+  const onHandlerFocus = () => {
+    setBorderColor("#424D9E");
+  };
+
+  const onHandlerBlur = () => {
+    setBorderColor("#C5C9E7");
+  };
+
+  const onHandlerChangeText = (text) => {
+    setTask(text);
+  };
+
+  const onHandlerModal = (item) => {
+    setIsVisible(true);
+    setSelectedTask(item);
+  };
+
+  const onHandlerCreateTask = () => {
+    console.log("onHandlerCreateTask");
+    console.warn({ task });
+    setTasks([
+      ...tasks,
+      {
+        id: Date.now().toString(),
+        value: task,
+      },
+    ]);
+
+    setTask("");
+  };
+
+
+
+  const renderItem = ({ item }) => <TaskItem item={item} onPressItem={onHandlerModal} />;
+
   return (
-    
-    <View style={styles.container}>
-      <SafeAreaView>
-      <View style={styles.container2}>
-        {data.map((item) => (
-        <Text key={item.id}>{item.name} </Text>
-      ))}
-          
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <InputTask
+          borderColor={borderColor}
+          onHandlerBlur={onHandlerBlur}
+          onHandlerChangeText={onHandlerChangeText}
+          onHandlerCreateTask={onHandlerCreateTask}
+          onHandlerFocus={onHandlerFocus}
+          task={task}
+        />
+        <FlatList
+          data={tasks}
+          renderItem={renderItem}
+          style={styles.listContainer}
+          contentContainerStyle={styles.list}
+          alwaysBounceVertical={false}
+          keyExtractor={(item) => item.id}
+        />
       </View>
-      </SafeAreaView>
-      
-    </View>
-    
+      <ModalList />
+    </SafeAreaView>
   );
 }
-
-
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 2,
-    backgroundColor: "#fff",
-    marginTop: StatusBar.currentHeight
-  },
-  container2: {
-    backgroundColor:"red",
-  }
-});
